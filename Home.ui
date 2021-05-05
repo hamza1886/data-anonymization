@@ -7,54 +7,18 @@
     <x>0</x>
     <y>0</y>
     <width>681</width>
-    <height>463</height>
+    <height>536</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Data Anonymization</string>
   </property>
   <widget class="QWidget" name="central_widget">
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>60</y>
-      <width>401</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Paste protein sequence in FASTA format:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="input_path">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>260</y>
-      <width>321</width>
-      <height>51</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>230</y>
-      <width>401</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Or upload the protein sequence from your computer:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="choose_input_file">
+   <widget class="QPushButton" name="choose_file_button">
     <property name="geometry">
      <rect>
       <x>550</x>
-      <y>260</y>
+      <y>250</y>
       <width>111</width>
       <height>25</height>
      </rect>
@@ -63,14 +27,14 @@
      <string>Choose File</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="encrypt_text">
+   <widget class="QPushButton" name="encrypt_button">
     <property name="enabled">
      <bool>false</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>210</x>
-      <y>380</y>
+      <x>420</x>
+      <y>490</y>
       <width>111</width>
       <height>25</height>
      </rect>
@@ -82,14 +46,14 @@
      <string>Encrypt</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="decrypt_text">
+   <widget class="QPushButton" name="decrypt_button">
     <property name="enabled">
      <bool>false</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>350</x>
-      <y>380</y>
+      <x>550</x>
+      <y>490</y>
       <width>111</width>
       <height>25</height>
      </rect>
@@ -101,12 +65,12 @@
      <string>Decrypt</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="clear_form">
+   <widget class="QPushButton" name="clear_form_button">
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>320</y>
-      <width>131</width>
+      <y>490</y>
+      <width>111</width>
       <height>25</height>
      </rect>
     </property>
@@ -114,7 +78,7 @@
      <string>Clear form</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="example_input">
+   <widget class="QPushButton" name="example_input_button">
     <property name="geometry">
      <rect>
       <x>550</x>
@@ -127,7 +91,7 @@
      <string>Example input</string>
     </property>
    </widget>
-   <widget class="QTextEdit" name="tragetSequence">
+   <widget class="QTextEdit" name="input_text">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -151,6 +115,74 @@
     </property>
     <property name="text">
      <string>Help</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radio_button_1">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>60</y>
+      <width>401</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Input text</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radio_button_2">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>250</y>
+      <width>401</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Upload file from your computer</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="input_path">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>280</y>
+      <width>641</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="output_label">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>310</y>
+      <width>641</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Output</string>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="output_text">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>340</y>
+      <width>641</width>
+      <height>141</height>
+     </rect>
+    </property>
+    <property name="lineWrapMode">
+     <enum>QTextEdit::WidgetWidth</enum>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
     </property>
    </widget>
   </widget>
