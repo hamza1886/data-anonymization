@@ -1,3 +1,4 @@
-pbkdf2
 pycryptodome
-pyqt5
+PyQt5
+PyQt5-stubs
+pyqt5-tools

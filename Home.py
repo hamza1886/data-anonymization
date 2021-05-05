@@ -1,26 +1,33 @@
 # -*- coding: utf-8 -*-
 
+###############################################################################
 # Form implementation generated from reading ui file 'Home.ui'
 #
-# Created by: PyQt5 UI code generator 5.9.2
+# Created by: Qt User Interface Compiler version 5.15.2
 #
-# WARNING! All changes made in this file will be lost!
+# WARNING! All changes made in this file will be lost when recompiling UI file!
+###############################################################################
 
 import binascii
-import os
 
-import pbkdf2
 from Crypto.Cipher import AES
 from PyQt5 import Qt, QtCore, QtGui, QtWidgets
 
 
 class Ui_HomeWindow(object):
+    def __init__(self):
+        # The secret key to use in the symmetric cipher.
+        # It must be 16, 24 or 32 bytes long (respectively for AES-128, AES-192 or AES-256).
+        # self.key = os.urandom(16)
+        self.key = b'Sixteen byte key'
+        self.secrets_filename = 'secrets.dat'
+
     def setup_ui(self, window):
         self.home_window = window
         if not self.home_window.objectName():
             self.home_window.setObjectName("home_window")
 
-        self.home_window.resize(681, 536)
+        self.home_window.resize(681, 550)
         self.central_widget = QtWidgets.QWidget(self.home_window)
         self.central_widget.setObjectName("central_widget")
 
@@ -116,7 +123,7 @@ class Ui_HomeWindow(object):
         self.home_window.setWindowTitle(_translate("home_window", "Data Anonymization"))
         self.help_button.setText(_translate("home_window", "Help"))
         self.example_input_button.setText(_translate("home_window", "Example input"))
-        self.radio_button_1.setText(_translate("home_window", "Input text to encrypt"))
+        self.radio_button_1.setText(_translate("home_window", "Enter text to encrypt or decrypt"))
         self.radio_button_2.setText(_translate("home_window", "Upload file from your computer"))
         self.choose_file_button.setText(_translate("home_window", "Choose File"))
         self.output_label.setText(_translate("home_window", "Output"))
@@ -156,69 +163,74 @@ class Ui_HomeWindow(object):
         self.input_text.setText('')
         self.input_path.setText('')
         self.output_text.setText('')
+        self.status_bar.showMessage('')
 
     def choose_file_button_click_handler(self):
         filename, _filter = QtWidgets.QFileDialog.getOpenFileName(caption='Select .txt file containing input text', filter='*.txt')
         self.input_path.setText(filename)
 
         if not filename:
-            QtWidgets.QMessageBox.about(QtWidgets.QMessageBox(), "Warning", "Please select a valid .txt file")
+            QtWidgets.QMessageBox.about(QtWidgets.QMessageBox(), 'Warning', 'Please select a valid .txt file')
             return
 
         with open(filename, 'r') as f:
-            sequence = f.read()
-            self.input_text.setText(sequence)
+            data = f.read()
+            self.input_text.setText(data)
 
-    def encrypt_button_click_handler(self):
-        scale = 16
-        otp = ''
-        num_of_bits = 8
-
-        text = self.input_text.toPlainText().strip()
-        if not text:
-            QtWidgets.QMessageBox.about(QtWidgets.QMessageBox(), "Warning", "Please input data to encrypt")
+    def read_input(self):
+        data = self.input_text.toPlainText().strip()
+        if not data:
+            QtWidgets.QMessageBox.about(QtWidgets.QMessageBox(), 'Warning', 'Enter text to encrypt or decrypt')
             return
 
-        text = text.encode()
+        return data
 
-        # changing the plaintext into hex encoded
-        plaintext = binascii.hexlify(text).decode('ascii')
-        plaintext_binary = bin(int(plaintext, scale))[2:].zfill(num_of_bits)
+    def encrypt_button_click_handler(self):
+        data = self.read_input()
 
-        # random 16-byte salt
-        passwordSalt = os.urandom(16)
+        cipher = AES.new(self.key, AES.MODE_EAX)
+        nonce = cipher.nonce
+        ciphertext, tag = cipher.encrypt_and_digest(data.encode())
 
-        # 100 iterations (about 100 ms), 32-byte output 32*8=256
-        key_generate = pbkdf2.PBKDF2(text, passwordSalt, 100).read(32)
+        nonce_hex = binascii.hexlify(nonce).decode('ascii')
+        ciphertext_hex = binascii.hexlify(ciphertext).decode('ascii')
+        tag_hex = binascii.hexlify(tag).decode('ascii')
 
-        # changing the key into hexadecimal value
-        key = binascii.hexlify(key_generate).decode('ascii')
-        key_binary = bin(int(key, scale))[2:].zfill(num_of_bits)
-        aes_key = key[0:32].encode()
+        with open(self.secrets_filename, mode='a') as f:
+            f.write(f'{nonce_hex}:{ciphertext_hex}:{tag_hex}\n')
 
-        for i in range(1, len(plaintext_binary) + 1):
-            f = plaintext_binary[0:i - 1] + '' + key_binary[128:256 - i + 1]
-            decimal_representation = int(f, 2)
-            hexadecimal_string = hex(decimal_representation)
-            hexadecimal_string = hexadecimal_string.encode()
-
-            cipher = AES.new(aes_key, AES.MODE_EAX)
-            rs = cipher.encrypt(hexadecimal_string)
-            a = binascii.b2a_hex(rs).decode()
-            k = bin(int(a, scale))[2:].zfill(num_of_bits)
-            lsb_string = k[len(k) - 1]
-            otp = otp + str(int(lsb_string) ^ (int(plaintext_binary[i - 1])))
-
-        n = int(otp, 2)
-        hexadecimal = hex(n)
-        hexadecimal = hexadecimal.replace('0x', '')
-
-        self.output_text.setText(hexadecimal)
+        self.output_text.setText(ciphertext_hex)
+        self.status_bar.showMessage('Success encrypting data')
 
     def decrypt_button_click_handler(self):
-        self.window = QtWidgets.QMainWindow()
-        # self.ui = Ui_SearchTemplate(self.window, seq_id)
-        self.ui.setup_ui()
-        self.home_window.hide()
-        self.window.setWindowTitle('Search Template - Bio-GATS')
-        self.window.show()
+        data_hex = self.read_input()
+
+        with open(self.secrets_filename, mode='r') as f:
+            lines = f.readlines()
+
+        match_found = False
+
+        for line in lines:
+            nonce_hex, ciphertext_hex, tag_hex = line.strip('\n').split(':')
+
+            if data_hex == ciphertext_hex:
+                nonce = binascii.unhexlify(nonce_hex)
+                ciphertext = binascii.unhexlify(ciphertext_hex)
+                tag = binascii.unhexlify(tag_hex)
+
+                cipher = AES.new(self.key, AES.MODE_EAX, nonce=nonce)
+                plaintext = cipher.decrypt(ciphertext)
+
+                try:
+                    cipher.verify(tag)
+                    self.output_text.setText(plaintext.decode())
+                    match_found = True
+                except ValueError:
+                    self.output_text.setText('Key incorrect or message corrupted')
+                finally:
+                    break
+
+        if match_found:
+            self.status_bar.showMessage('Match found')
+        else:
+            self.status_bar.showMessage('Match not found')
